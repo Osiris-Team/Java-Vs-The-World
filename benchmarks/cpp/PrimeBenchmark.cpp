@@ -2,6 +2,7 @@
 #include <vector>
 #include <chrono>
 #include <random>
+#include <algorithm>
 
 int countPrimes(int n) {
     std::vector<bool> isPrime(n + 1, true);
@@ -20,7 +21,7 @@ int main() {
     // Generate a random number between 100000000 and 100000100
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(100000000, 100000100);
+    std::uniform_int_distribution<> dis(10000000, 10000100);
     int randomMax = dis(gen);
 
     // First run (not timed)

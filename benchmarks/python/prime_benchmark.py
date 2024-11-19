@@ -10,8 +10,8 @@ def count_primes(n):
                 is_prime[j] = False
     return sum(is_prime)
 
-# Generate a random number between 100000000 and 100000100
-random_max = random.randint(100000000, 100000100)
+# Generate a random number between 10000000 and 10000100
+random_max = random.randint(10000000, 10000100)
 
 # First run (not timed)
 count_primes(random_max)

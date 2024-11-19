@@ -4,7 +4,7 @@ import java.util.Random;
 public class PrimeBenchmark {
     public static void main(String[] args) {
         Random random = new Random();
-        int randomMax = 100000000 + random.nextInt(101); // Random number between 100000000 and 100000100
+        int randomMax = 10000000 + random.nextInt(101); // Random number between 100000000 and 100000100
 
         long startTime, endTime;
 
