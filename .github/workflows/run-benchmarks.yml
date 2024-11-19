@@ -1,12 +1,7 @@
 name: Run Prime Benchmarks
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch: # Allows manual triggering of the workflow
 
 permissions:
   contents: write
@@ -83,11 +78,11 @@ jobs:
           ./benchmarks/java/primebenchmark > results/java_graalvm_result.json
 
       # Optimized Python benchmark using PyPy
+      # Set up PyPy
       - name: Set up PyPy
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
-          pypy: 'true'
+          python-version: 'pypy3.10'
 
       - name: Run Python benchmark with PyPy
         run: pypy3 benchmarks/python/prime_benchmark.py > results/python_pypy_result.json
