@@ -1,0 +1,12 @@
+
+{
+  "name": "prime-benchmark",
+  "version": "1.0.0",
+  "description": "",
+  "main": "prime_benchmark.js",
+  "scripts": {
+    "start": "node prime_benchmark.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
