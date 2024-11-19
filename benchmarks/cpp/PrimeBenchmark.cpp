@@ -31,7 +31,7 @@ int main() {
     countPrimes(randomMax);
     auto end = std::chrono::high_resolution_clock::now();
 
-    std::cout << "{\\"type\\": \\"prime\\", \\"time_ns\\": "
+    std::cout << "{\"type\": \"prime\", \"time_ns\": "
               << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count()
               << "}" << std::endl;
 
