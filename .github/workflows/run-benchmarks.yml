@@ -9,131 +9,225 @@ permissions:
 jobs:
   run-benchmarks:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        language:
+          - java_default
+          - java_optimized
+          - java_graalvm_jvm
+          - java_graalvm_native
+          - java_graalvm_native_optimized
+          - python_default
+          - python_pypy
+          - python_cython
+          - python_nuitka
+          - javascript_default
+          - javascript_v8_optimized
+          - javascript_graalvm
+          - cpp_gcc
+          - cpp_clang
+          - cpp_pgo
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Create results directory
       - name: Create results directory
         run: mkdir -p results
 
-      # Set up Java
-      - name: Set up Java
+      # Set up environments based on language
+      - name: Set up Java (default)
+        if: ${{ matrix.language == 'java_default' || matrix.language == 'java_optimized' }}
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'adopt'
 
-      # Original Java benchmark
-      - name: Compile and run Java benchmark
-        continue-on-error: true
-        run: |
-          touch results/java_result.json
-          cd benchmarks/java
-          javac PrimeBenchmark.java
-          java PrimeBenchmark > ../../results/java_result.json
+      - name: Set up GraalVM
+        if: ${{ startsWith(matrix.language, 'java_graalvm') || matrix.language == 'javascript_graalvm' }}
+        uses: graalvm/setup-graalvm@v1
+        with:
+          version: '22.3.1'
+          java-version: '21'
 
-      # Set up Python
+      - name: Install Native Image
+        if: ${{ matrix.language == 'java_graalvm_native' || matrix.language == 'java_graalvm_native_optimized' }}
+        run: gu install native-image
+
+      - name: Set up Node.js
+        if: ${{ matrix.language == 'javascript_default' || matrix.language == 'javascript_v8_optimized' }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install GCC
+        if: ${{ matrix.language == 'cpp_gcc' || matrix.language == 'cpp_pgo' }}
+        run: sudo apt-get update && sudo apt-get install -y g++
+
+      - name: Install Clang
+        if: ${{ matrix.language == 'cpp_clang' }}
+        run: sudo apt-get update && sudo apt-get install -y clang
+
       - name: Set up Python
+        if: ${{ matrix.language == 'python_default' || matrix.language == 'python_cython' || matrix.language == 'python_nuitka' }}
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      # Original Python benchmark
-      - name: Run Python benchmark
-        continue-on-error: true
-        run: |
-          touch results/python_result.json
-          python3 benchmarks/python/prime_benchmark.py > results/python_result.json
-
-      # Install Node.js
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-
-      # Original JavaScript benchmark
-      - name: Run JavaScript benchmark
-        continue-on-error: true
-        run: |
-          touch results/js_result.json
-          node benchmarks/js/prime_benchmark.js > results/js_result.json
-
-      # Install GCC
-      - name: Install GCC
-        run: sudo apt-get update && sudo apt-get install -y g++
-
-      # Compile and run C++ benchmark with optimizations
-      - name: Compile and run C++ benchmark
-        continue-on-error: true
-        run: |
-          touch results/cpp_result.json
-          g++ -O3 -march=native -flto -o benchmarks/cpp/PrimeBenchmark benchmarks/cpp/PrimeBenchmark.cpp
-          ./benchmarks/cpp/PrimeBenchmark > results/cpp_result.json
-
-      # Set up GraalVM
-      - name: Set up GraalVM
-        uses: graalvm/setup-graalvm@v1
-        with:
-          version: '22.3.1' # Specify the GraalVM version
-          java-version: '17' # Use Java 17
-
-      # Install Native Image
-      - name: Install Native Image
-        run: gu install native-image
-
-      # Compile and run Java benchmark with GraalVM
-      - name: Compile and run Java benchmark with GraalVM
-        continue-on-error: true
-        run: |
-          touch results/java_graalvm_result.json
-          cd benchmarks/java
-          javac PrimeBenchmark.java
-          java PrimeBenchmark > ../../results/java_graalvm_result.json
-
-      # Compile and run Java benchmark with GraalVM Native Image
-      - name: Compile and run Java benchmark with GraalVM Native Image
-        continue-on-error: true
-        run: |
-          touch results/java_graalvm_native_image_result.json
-          cd benchmarks/java
-          javac PrimeBenchmark.java
-          native-image --no-fallback PrimeBenchmark
-          cd ../../
-          ./benchmarks/java/primebenchmark > results/java_graalvm_native_image_result.json
-
-      # Set up PyPy
       - name: Set up PyPy
+        if: ${{ matrix.language == 'python_pypy' }}
         uses: actions/setup-python@v4
         with:
-          python-version: 'pypy3.10'
+          python-version: 'pypy-3.9'
 
-      # Run Python benchmark with PyPy
-      - name: Run Python benchmark with PyPy
-        continue-on-error: true
-        run: |
-          touch results/python_pypy_result.json
-          pypy3 benchmarks/python/prime_benchmark.py > results/python_pypy_result.json
+      - name: Install Cython
+        if: ${{ matrix.language == 'python_cython' }}
+        run: pip install cython
 
-      # Install GraalVM Node.js Support
+      - name: Install Nuitka
+        if: ${{ matrix.language == 'python_nuitka' }}
+        run: pip install nuitka
+
       - name: Install GraalVM Node.js
+        if: ${{ matrix.language == 'javascript_graalvm' }}
         run: gu install nodejs
 
-      # Run JavaScript benchmark with GraalVM Node.js
-      - name: Run JavaScript benchmark with GraalVM Node.js
+      # Benchmark Execution
+      - name: Run Benchmark
         continue-on-error: true
         run: |
-          touch results/js_graalvm_result.json
-          node benchmarks/js/prime_benchmark.js > results/js_graalvm_result.json
+          # Java default benchmark
+          if [ "${{ matrix.language }}" == "java_default" ]; then
+            cd benchmarks/java
+            javac PrimeBenchmark.java
+            java PrimeBenchmark > ../../results/java_result.json
+          fi
 
-      # Generate Markdown Report
+          # Java optimized benchmark with JVM flags
+          if [ "${{ matrix.language }}" == "java_optimized" ]; then
+            cd benchmarks/java
+            javac PrimeBenchmark.java
+            java -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:+UseStringDeduplication PrimeBenchmark > ../../results/java_optimized_result.json
+          fi
+
+          # Java benchmark with GraalVM JVM
+          if [ "${{ matrix.language }}" == "java_graalvm_jvm" ]; then
+            cd benchmarks/java
+            javac PrimeBenchmark.java
+            java PrimeBenchmark > ../../results/java_graalvm_jvm_result.json
+          fi
+
+          # Java benchmark with GraalVM Native Image
+          if [ "${{ matrix.language }}" == "java_graalvm_native" ]; then
+            cd benchmarks/java
+            javac PrimeBenchmark.java
+            native-image --no-fallback PrimeBenchmark
+            cd ../../
+            ./benchmarks/java/primebenchmark > results/java_graalvm_native_result.json
+          fi
+
+          # Java benchmark with optimized GraalVM Native Image
+          if [ "${{ matrix.language }}" == "java_graalvm_native_optimized" ]; then
+            cd benchmarks/java
+            javac PrimeBenchmark.java
+            # Generate profile data
+            native-image --no-fallback --pgo-instrument PrimeBenchmark
+            ./primebenchmark
+            # Use profile data for optimization
+            native-image --no-fallback --pgo=default.iprof PrimeBenchmark
+            cd ../../
+            ./benchmarks/java/primebenchmark > results/java_graalvm_native_optimized_result.json
+          fi
+
+          # Python default benchmark
+          if [ "${{ matrix.language }}" == "python_default" ]; then
+            python3 benchmarks/python/prime_benchmark.py > results/python_result.json
+          fi
+
+          # Python benchmark with PyPy
+          if [ "${{ matrix.language }}" == "python_pypy" ]; then
+            python benchmarks/python/prime_benchmark.py > results/python_pypy_result.json
+          fi
+
+          # Python benchmark compiled with Cython
+          if [ "${{ matrix.language }}" == "python_cython" ]; then
+            cython benchmarks/python/prime_benchmark.py --embed -o benchmarks/python/prime_benchmark.c
+            gcc -Os -I $(python3-config --includes) -o benchmarks/python/prime_benchmark benchmarks/python/prime_benchmark.c $(python3-config --ldflags)
+            ./benchmarks/python/prime_benchmark > results/python_cython_result.json
+          fi
+
+          # Python benchmark compiled with Nuitka
+          if [ "${{ matrix.language }}" == "python_nuitka" ]; then
+            nuitka --onefile benchmarks/python/prime_benchmark.py
+            ./prime_benchmark.bin > results/python_nuitka_result.json
+          fi
+
+          # JavaScript default benchmark
+          if [ "${{ matrix.language }}" == "javascript_default" ]; then
+            node benchmarks/js/prime_benchmark.js > results/js_result.json
+          fi
+
+          # JavaScript benchmark with V8 optimization flags
+          if [ "${{ matrix.language }}" == "javascript_v8_optimized" ]; then
+            node --turbo --optimize_for_size --max-old-space-size=4096 benchmarks/js/prime_benchmark.js > results/js_v8_optimized_result.json
+          fi
+
+          # JavaScript benchmark with GraalVM
+          if [ "${{ matrix.language }}" == "javascript_graalvm" ]; then
+            js benchmarks/js/prime_benchmark.js > results/js_graalvm_result.json
+          fi
+
+          # C++ benchmark compiled with GCC
+          if [ "${{ matrix.language }}" == "cpp_gcc" ]; then
+            g++ -O3 -march=native -flto -o benchmarks/cpp/PrimeBenchmark benchmarks/cpp/PrimeBenchmark.cpp
+            ./benchmarks/cpp/PrimeBenchmark > results/cpp_result.json
+          fi
+
+          # C++ benchmark compiled with Clang
+          if [ "${{ matrix.language }}" == "cpp_clang" ]; then
+            clang++ -O3 -march=native -flto -o benchmarks/cpp/PrimeBenchmark benchmarks/cpp/PrimeBenchmark.cpp
+            ./benchmarks/cpp/PrimeBenchmark > results/cpp_clang_result.json
+          fi
+
+          # C++ benchmark with PGO
+          if [ "${{ matrix.language }}" == "cpp_pgo" ]; then
+            # Compile with instrumentation
+            g++ -O3 -march=native -fprofile-generate -o benchmarks/cpp/PrimeBenchmark_PGO benchmarks/cpp/PrimeBenchmark.cpp
+            # Run to generate profile data
+            ./benchmarks/cpp/PrimeBenchmark_PGO
+            # Compile using profile data
+            g++ -O3 -march=native -fprofile-use -fprofile-correction -o benchmarks/cpp/PrimeBenchmark_PGO benchmarks/cpp/PrimeBenchmark.cpp
+            ./benchmarks/cpp/PrimeBenchmark_PGO > results/cpp_pgo_result.json
+          fi
+
+      - name: Upload Result Artifact
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.language }}-results
+          path: results/
+
+  generate-report:
+    runs-on: ubuntu-latest
+    needs: run-benchmarks
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: all_results
+
+      - name: Merge Result Files
+        run: |
+          mkdir -p results
+          cp all_results/**/results/* results/
+
       - name: Generate Markdown Report
         run: |
           javac MarkdownGenerator.java
           java MarkdownGenerator
 
-      # Commit results
       - name: Commit results
         run: |
           git config --global user.name "GitHub Actions Bot"
