@@ -17,4 +17,4 @@ start_time = time.time()
 count_primes(1000000)
 end_time = time.time()
 
-print(f'{{"language": "Python", "time_ns": {int((end_time - start_time) * 1e9)}}}')
+print(f'{{"type": "prime", "time_ns": {int((end_time - start_time) * 1e9)}}}')

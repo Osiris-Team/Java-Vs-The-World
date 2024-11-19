@@ -25,7 +25,7 @@ int main() {
     countPrimes(1000000);
     auto end = std::chrono::high_resolution_clock::now();
 
-    std::cout << "{\"language\": \"C++\", \"time_ns\": "
+    std::cout << "{\"type\": \"prime\", \"time_ns\": "
               << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count()
               << "}" << std::endl;
 

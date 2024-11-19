@@ -19,4 +19,4 @@ const start = process.hrtime.bigint();
 countPrimes(1000000);
 const end = process.hrtime.bigint();
 
-console.log(`{"language": "JavaScript", "time_ns": ${end - start}}`);
+console.log(`{"type": "prime", "time_ns": ${end - start}}`);

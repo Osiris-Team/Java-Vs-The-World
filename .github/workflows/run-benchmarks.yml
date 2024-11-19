@@ -46,6 +46,7 @@ jobs:
 
       # Original Java benchmark
       - name: Compile and run Java benchmark
+        continue-on-error: true
         run: |
           cd benchmarks/java
           javac PrimeBenchmark.java
@@ -53,10 +54,12 @@ jobs:
 
       # Original Python benchmark
       - name: Run Python benchmark
+        continue-on-error: true
         run: python3 benchmarks/python/prime_benchmark.py > results/python_result.json
 
       # Original JavaScript benchmark
       - name: Run JavaScript benchmark
+        continue-on-error: true
         run: node benchmarks/js/prime_benchmark.js > results/js_result.json
 
       # Optimized Java benchmark using GraalVM Native Image
@@ -69,30 +72,44 @@ jobs:
       - name: Install Native Image
         run: gu install native-image
 
+      - name: Compile and run Java benchmark with GraalVM
+        continue-on-error: true
+        run: |
+          cd benchmarks/java
+          javac PrimeBenchmark.java
+          java PrimeBenchmark > ../../results/java_graalvm_result.json
+
       - name: Compile and run Java benchmark with GraalVM Native Image
+        continue-on-error: true
         run: |
           cd benchmarks/java
           javac PrimeBenchmark.java
           native-image --no-fallback PrimeBenchmark
           cd ../../
-          ./benchmarks/java/primebenchmark > results/java_graalvm_result.json
+          ./benchmarks/java/primebenchmark > results/java_graalvm_native_image_result.json
 
       # Optimized Python benchmark using PyPy
-      # Set up PyPy
       - name: Set up PyPy
         uses: actions/setup-python@v4
         with:
           python-version: 'pypy3.10'
 
       - name: Run Python benchmark with PyPy
+        continue-on-error: true
         run: pypy3 benchmarks/python/prime_benchmark.py > results/python_pypy_result.json
+
+      # Install GraalVM JavaScript engine
+      - name: Install GraalVM JavaScript
+        run: gu install js
 
       # Optimized JavaScript benchmark using GraalVM JavaScript engine
       - name: Run JavaScript benchmark with GraalVM
+        continue-on-error: true
         run: js benchmarks/js/prime_benchmark.js > results/js_graalvm_result.json
 
       # Compile and run C++ benchmark with optimizations
       - name: Compile and run C++ benchmark
+        continue-on-error: true
         run: |
           g++ -O3 -march=native -flto -o benchmarks/cpp/PrimeBenchmark benchmarks/cpp/PrimeBenchmark.cpp
           ./benchmarks/cpp/PrimeBenchmark > results/cpp_result.json

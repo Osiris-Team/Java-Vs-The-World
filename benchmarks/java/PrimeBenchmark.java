@@ -13,7 +13,7 @@ public class PrimeBenchmark {
         endTime = System.nanoTime();
 
         System.out.printf("""
-                {"language": "Java", "time_ns": %d}
+                {"type": "prime", "time_ns": %d}
                 """, (endTime - startTime));
     }
 
