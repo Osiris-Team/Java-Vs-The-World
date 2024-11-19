@@ -31,6 +31,7 @@ public class MarkdownGenerator {
             List<BenchmarkResult> results = Files.list(Paths.get(resultsDir))
                     .filter(path -> path.toString().endsWith("_result.json"))
                     .map(MarkdownGenerator::parseResult)
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
             // Check if there are any results
@@ -102,10 +103,12 @@ public class MarkdownGenerator {
 
                 return new BenchmarkResult(label, timeNs);
             } else {
-                throw new RuntimeException("time_ns not found in file: " + filePath);
+                System.err.println("time_ns not found in file: " + filePath);
+                return null;
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error reading result file: " + filePath, e);
+            System.err.println("Error reading result file: " + filePath, e);
+            return null;
         }
     }
 }

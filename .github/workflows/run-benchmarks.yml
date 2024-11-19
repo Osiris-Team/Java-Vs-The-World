@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'oracle'
+          distribution: 'adopt'
 
       # Original Java benchmark
       - name: Compile and run Java benchmark
@@ -116,16 +116,16 @@ jobs:
           touch results/python_pypy_result.json
           pypy3 benchmarks/python/prime_benchmark.py > results/python_pypy_result.json
 
-      # Install GraalVM JavaScript engine
-      - name: Install GraalVM JavaScript
-        run: gu install js
+      # Install GraalVM Node.js Support
+      - name: Install GraalVM Node.js
+        run: gu install nodejs
 
-      # Run JavaScript benchmark with GraalVM
-      - name: Run JavaScript benchmark with GraalVM
+      # Run JavaScript benchmark with GraalVM Node.js
+      - name: Run JavaScript benchmark with GraalVM Node.js
         continue-on-error: true
         run: |
           touch results/js_graalvm_result.json
-          js benchmarks/js/prime_benchmark.js > results/js_graalvm_result.json
+          node benchmarks/js/prime_benchmark.js > results/js_graalvm_result.json
 
       # Generate Markdown Report
       - name: Generate Markdown Report
