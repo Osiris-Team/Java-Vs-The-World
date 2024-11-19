@@ -22,12 +22,12 @@ public class MarkdownGenerator {
     }
 
     public static void main(String[] args) {
-        String resultsDir = "results"; // Directory containing result files
+        String resultsDir = System.getProperty(user.dir) + "/results"; // Directory containing result files
         String outputFile = "results_summary.md"; // Output file in the current working directory
 
         try {
             // Read result files
-            List<BenchmarkResult> results = Files.list(Paths.get(resultsDir))
+            List<BenchmarkResult> results = Files.list(new File(resultsDir).toPath())
                     .filter(path -> path.toString().endsWith("_result.json"))
                     .map(MarkdownGenerator::parseResult)
                     .collect(Collectors.toList());
