@@ -27,7 +27,7 @@ public class MarkdownGenerator {
 
         try {
             // Read result files
-            List<BenchmarkResult> results = Files.list(new File(resultsDir).toPath())
+            List<BenchmarkResult> results = Files.list(Paths.get(resultsDir))
                     .filter(path -> path.toString().endsWith("_result.json"))
                     .map(MarkdownGenerator::parseResult)
                     .collect(Collectors.toList());
