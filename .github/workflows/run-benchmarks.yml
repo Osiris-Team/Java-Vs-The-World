@@ -1,71 +1,57 @@
-name: Run Benchmarks
+name: Run Prime Benchmarks
 
 on:
-  workflow_dispatch: # Allows manual triggering of the workflow
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   run-benchmarks:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout Repository
+      uses: actions/checkout@v3
 
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+    - name: Benchmark Java
+      run: |
+        cd java
+        mvn compile exec:java -Dexec.mainClass=PrimeBenchmark
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
 
-      - name: Install Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.20'
+    - name: Benchmark Python
+      run: |
+        python python/prime_benchmark.py
 
-      - name: Install C++ dependencies
-        run: sudo apt-get install -y build-essential
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
 
-      - name: Run Java benchmark
-        run: |
-          cd java
-          ./build.sh
-          java Benchmark > ../results/java_result.txt
+    - name: Benchmark JavaScript
+      run: |
+        cd javascript
+        npm install
+        npm start
 
-      - name: Run Python benchmark
-        run: python3 python/benchmark.py > results/python_result.txt
+    - name: Install GCC
+      run: sudo apt-get install -y build-essential
 
-      - name: Run C++ benchmark
-        run: |
-          cd cpp
-          ./build.sh
-          ./benchmark > ../results/cpp_result.txt
+    - name: Benchmark C++
+      run: |
+        cd cpp
+        make
+        ./prime_benchmark
 
-      - name: Run Go benchmark
-        run: go run go/benchmark.go > results/go_result.txt
-
-      - name: Run JavaScript benchmark
-        run: node javascript/benchmark.js > results/javascript_result.txt
-
-      - name: Aggregate results
-        run: |
-          echo "Language,ExecutionTime" > results/results.csv
-          for file in results/*_result.txt; do
-            lang=$(basename $file | cut -d'_' -f1)
-            time=$(cat $file)
-            echo "$lang,$time" >> results/results.csv
-          done
-
-      - name: Upload results
-        uses: actions/upload-artifact@v3
-        with:
-          name: benchmark-results
-          path: results/results.csv
+    - name: Collect Results
+      run: echo "All benchmarks completed successfully!"
