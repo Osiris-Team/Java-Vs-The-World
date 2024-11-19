@@ -107,7 +107,7 @@ public class MarkdownGenerator {
                 return null;
             }
         } catch (IOException e) {
-            System.err.println("Error reading result file: " + filePath, e);
+            System.err.println("Error reading result file: " + filePath +" "+ e.getMessage());
             return null;
         }
     }
