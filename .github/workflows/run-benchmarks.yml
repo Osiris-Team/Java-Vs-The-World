@@ -46,7 +46,7 @@ jobs:
         if: ${{ startsWith(matrix.language, 'java_graalvm') || matrix.language == 'javascript_graalvm' }}
         uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.3.1'
+          version: '23.1.2'
           java-version: '21'
 
       - name: Install Native Image
