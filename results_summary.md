@@ -9,19 +9,22 @@ This file contains the results of running a prime-counting algorithm across vari
 
 | Implementation       | Time (ns)         | Time (ms)         | Time (s)          | % Slower than Fastest |
 |----------------------|-------------------|-------------------|-------------------|-----------------------|
-| cpp_clang            | 24678347          | 24.68             | 0.0247            | 0.00                  |
-| cpp                  | 27110031          | 27.11             | 0.0271            | 9.85                  |
-| java_graalvm_native_optimized | 28700239          | 28.70             | 0.0287            | 16.30                 |
-| java_graalvm_jvm     | 31518651          | 31.52             | 0.0315            | 27.72                 |
-| java_optimized       | 34268541          | 34.27             | 0.0343            | 38.86                 |
-| java                 | 34918282          | 34.92             | 0.0349            | 41.49                 |
-| cpp_pgo              | 37655790          | 37.66             | 0.0377            | 52.59                 |
-| java_graalvm_native  | 45301316          | 45.30             | 0.0453            | 83.57                 |
-| js                   | 174911086         | 174.91            | 0.1749            | 608.76                |
-| python_pypy          | 235081434         | 235.08            | 0.2351            | 852.58                |
-| python_nuitka        | 728096008         | 728.10            | 0.7281            | 2850.34               |
-| python               | 752319574         | 752.32            | 0.7523            | 2948.50               |
+| c_clang              | 12580803          | 12.58             | 0.0126            | 0.00                  |
+| c_gcc                | 13338502          | 13.34             | 0.0133            | 6.02                  |
+| cpp_clang            | 24118988          | 24.12             | 0.0241            | 91.71                 |
+| cpp                  | 27299174          | 27.30             | 0.0273            | 116.99                |
+| java_graalvm_native_optimized | 29111552          | 29.11             | 0.0291            | 131.40                |
+| java_graalvm_jvm     | 29283413          | 29.28             | 0.0293            | 132.76                |
+| java_optimized       | 34244486          | 34.24             | 0.0342            | 172.20                |
+| java                 | 34905619          | 34.91             | 0.0349            | 177.45                |
+| cpp_pgo              | 38438574          | 38.44             | 0.0384            | 205.53                |
+| java_graalvm_native  | 44452665          | 44.45             | 0.0445            | 253.34                |
+| scala                | 72786299          | 72.79             | 0.0728            | 478.55                |
+| js                   | 179856131         | 179.86            | 0.1799            | 1329.61               |
+| python_pypy          | 215535879         | 215.54            | 0.2155            | 1613.21               |
+| python               | 680478334         | 680.48            | 0.6805            | 5308.86               |
+| python_nuitka        | 741626262         | 741.63            | 0.7416            | 5794.90               |
 
 **Summary:**
-- Fastest implementation: cpp_clang with 24.68 ms (0.0247 s).
-- Slowest implementation: python with 752.32 ms (0.7523 s).
+- Fastest implementation: c_clang with 12.58 ms (0.0126 s).
+- Slowest implementation: python_nuitka with 741.63 ms (0.7416 s).
