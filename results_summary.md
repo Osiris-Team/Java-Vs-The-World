@@ -9,11 +9,11 @@ This file contains the results of running a prime-counting algorithm across vari
 
 | Language   | Time (ns)         | Time (ms)         | Time (s)          | % Slower than Fastest |
 |------------|-------------------|-------------------|-------------------|-----------------------|
-| java       | 8962433           | 8.96              | 0.0090            | 0.00                  |
-| js         | 10638161          | 10.64             | 0.0106            | 18.70                 |
-| python     | 63608884          | 63.61             | 0.0636            | 609.73                |
-| cpp        | 92567453          | 92.57             | 0.0926            | 932.84                |
+| java       | 8611884           | 8.61              | 0.0086            | 0.00                  |
+| js         | 10604914          | 10.60             | 0.0106            | 23.14                 |
+| python     | 61839580          | 61.84             | 0.0618            | 618.07                |
+| cpp        | 91514475          | 91.51             | 0.0915            | 962.65                |
 
 **Summary:**
-- Fastest language: java with 8.96 ms (0.0090 s).
-- Slowest language: cpp with 92.57 ms (0.0926 s).
+- Fastest language: java with 8.61 ms (0.0086 s).
+- Slowest language: cpp with 91.51 ms (0.0915 s).
