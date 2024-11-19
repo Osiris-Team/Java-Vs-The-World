@@ -1,4 +1,4 @@
-name: Run Prime Benchmarks
+name: Run Prime Benchmarks on GraalVM
 
 on:
   push:
@@ -14,44 +14,48 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
-    - name: Set up Java
-      uses: actions/setup-java@v3
+    - name: Set up GraalVM
+      uses: graalvm/setup-graalvm@v1
       with:
-        java-version: '17'
+        version: '22.3.1' # Specify the GraalVM version
+        java-version: '17' # Use Java 17
 
-    - name: Benchmark Java
+    - name: Set up Python (via GraalVM)
+      run: |
+        gu install python
+        graalpython --version
+
+    - name: Set up Node.js (via GraalVM)
+      run: |
+        gu install nodejs
+        node --version
+
+    - name: Set up Native Image
+      run: gu install native-image
+
+    - name: Benchmark Java (GraalVM)
       run: |
         cd java
         mvn compile exec:java -Dexec.mainClass=PrimeBenchmark
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-
-    - name: Benchmark Python
+    - name: Benchmark Python (GraalVM)
       run: |
-        python python/prime_benchmark.py
+        graalpython python/prime_benchmark.py
 
-    - name: Install Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-
-    - name: Benchmark JavaScript
+    - name: Benchmark JavaScript (GraalVM)
       run: |
         cd javascript
         npm install
-        npm start
+        node prime_benchmark.js
 
     - name: Install GCC
       run: sudo apt-get install -y build-essential
 
-    - name: Benchmark C++
+    - name: Benchmark C++ (Native Compilation)
       run: |
         cd cpp
         make
         ./prime_benchmark
 
     - name: Collect Results
-      run: echo "All benchmarks completed successfully!"
+      run: echo "All benchmarks completed successfully on GraalVM!"
