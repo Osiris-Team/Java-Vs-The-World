@@ -28,7 +28,8 @@ public class MarkdownGenerator {
 
         try {
             // Read result files
-            List<BenchmarkResult> results = Files.list(Paths.get(resultsDir))
+            List<BenchmarkResult> results = Files.walk(Paths.get(resultsDir))
+                    .filter(Files::isRegularFile)
                     .filter(path -> path.toString().endsWith("_result.json"))
                     .map(MarkdownGenerator::parseResult)
                     .filter(Objects::nonNull)

@@ -210,16 +210,11 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
-          path: all_results
+          path: results
 
       - name: List Downloaded Artifacts
         run: |
-          ls -R all_results
-
-      - name: Merge Result Files
-        run: |
-          mkdir -p results
-          cp all_results/*/results/* results/
+          ls -R results
 
       - name: Generate Markdown Report
         run: |
