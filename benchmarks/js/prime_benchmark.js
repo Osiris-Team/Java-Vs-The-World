@@ -12,11 +12,11 @@ function countPrimes(n) {
 }
 
 // First run (not timed)
-countPrimes(1000000);
+countPrimes(100000000);
 
 // Second run (timed)
 const start = process.hrtime.bigint();
-countPrimes(1000000);
+countPrimes(100000000);
 const end = process.hrtime.bigint();
 
 console.log(`{"type": "prime", "time_ns": ${end - start}}`);

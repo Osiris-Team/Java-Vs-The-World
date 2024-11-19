@@ -10,11 +10,11 @@ def count_primes(n):
     return sum(is_prime)
 
 # First run (not timed)
-count_primes(1000000)
+count_primes(100000000)
 
 # Second run (timed)
 start_time = time.time()
-count_primes(1000000)
+count_primes(100000000)
 end_time = time.time()
 
 print(f'{{"type": "prime", "time_ns": {int((end_time - start_time) * 1e9)}}}')

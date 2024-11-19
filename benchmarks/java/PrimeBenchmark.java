@@ -5,11 +5,11 @@ public class PrimeBenchmark {
         long startTime, endTime;
 
         // First run (not timed)
-        countPrimes(1000000);
+        countPrimes(100000000);
 
         // Second run (timed)
         startTime = System.nanoTime();
-        countPrimes(1000000);
+        countPrimes(100000000);
         endTime = System.nanoTime();
 
         System.out.printf("""

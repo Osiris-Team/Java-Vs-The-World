@@ -18,11 +18,11 @@ int countPrimes(int n) {
 
 int main() {
     // First run (not timed)
-    countPrimes(1000000);
+    countPrimes(100000000);
 
     // Second run (timed)
     auto start = std::chrono::high_resolution_clock::now();
-    countPrimes(1000000);
+    countPrimes(100000000);
     auto end = std::chrono::high_resolution_clock::now();
 
     std::cout << "{\"type\": \"prime\", \"time_ns\": "
