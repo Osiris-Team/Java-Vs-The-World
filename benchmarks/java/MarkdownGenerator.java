@@ -2,7 +2,6 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.json.JSONObject;
 
 public class MarkdownGenerator {
 
@@ -23,16 +22,17 @@ public class MarkdownGenerator {
     }
 
     public static void main(String[] args) {
-        String outputFile = "results_summary.md";
+        String resultsDir = "results"; // Directory containing result files
+        String outputFile = "results_summary.md"; // Output file in the current working directory
 
         try {
-            // Read JSON files
-            List<BenchmarkResult> results = Files.list(Paths.get(System.getProperty("user.dir")))
+            // Read result files
+            List<BenchmarkResult> results = Files.list(Paths.get(resultsDir))
                     .filter(path -> path.toString().endsWith("_result.json"))
                     .map(MarkdownGenerator::parseResult)
                     .collect(Collectors.toList());
 
-            // Sort by time (ascending)
+            // Sort results by time (ascending order)
             results.sort(Comparator.comparingLong(r -> r.timeNs));
 
             // Calculate percentage slower than the fastest
@@ -43,7 +43,7 @@ public class MarkdownGenerator {
                 }
             }
 
-            // Generate markdown file
+            // Generate the markdown file
             try (PrintWriter writer = new PrintWriter(new FileWriter(outputFile))) {
                 writer.println("# Prime Counting Benchmark Results\n");
                 writer.println("This file contains the results of running a prime-counting algorithm across various programming languages.\n");
@@ -82,13 +82,16 @@ public class MarkdownGenerator {
 
     private static BenchmarkResult parseResult(Path filePath) {
         try {
-            String content = new String(Files.readAllBytes(filePath));
-            JSONObject json = new JSONObject(content);
+            String content = new String(Files.readAllBytes(filePath)).trim();
+
+            // Manually parse the JSON-like string
             String language = filePath.getFileName().toString().replace("_result.json", "");
-            long timeNs = json.getLong("time_ns");
+            int timeIndex = content.indexOf("\"time_ns\":") + 10;
+            long timeNs = Long.parseLong(content.substring(timeIndex).replaceAll("[^0-9]", ""));
+
             return new BenchmarkResult(language, timeNs);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        } catch (IOException | NumberFormatException e) {
+            throw new RuntimeException("Error parsing result file: " + filePath, e);
         }
     }
 }
