@@ -19,11 +19,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up GraalVM
-        uses: graalvm/setup-graalvm@v1
+      - name: Set up Java
+        uses: actions/setup-java@v3
         with:
-          version: '22.3.1' # Specify the GraalVM version
-          java-version: '17' # Use Java 17
+          java-version: '17'
+          distribution: 'oracle'
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -45,29 +45,70 @@ jobs:
           touch results/python_result.json
           touch results/cpp_result.json
           touch results/js_result.json
+          touch results/java_graalvm_result.json
+          touch results/python_pypy_result.json
+          touch results/js_graalvm_result.json
 
+      # Original Java benchmark
       - name: Compile and run Java benchmark
         run: |
           cd benchmarks/java
           javac PrimeBenchmark.java
           java PrimeBenchmark > ../../results/java_result.json
 
+      # Original Python benchmark
       - name: Run Python benchmark
         run: python3 benchmarks/python/prime_benchmark.py > results/python_result.json
 
-      - name: Compile and run C++ benchmark
-        run: |
-          g++ -o benchmarks/cpp/PrimeBenchmark benchmarks/cpp/PrimeBenchmark.cpp
-          ./benchmarks/cpp/PrimeBenchmark > results/cpp_result.json
-
+      # Original JavaScript benchmark
       - name: Run JavaScript benchmark
         run: node benchmarks/js/prime_benchmark.js > results/js_result.json
 
+      # Optimized Java benchmark using GraalVM Native Image
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          version: '22.3.1' # Specify the GraalVM version
+          java-version: '17' # Use Java 17
+
+      - name: Install Native Image
+        run: gu install native-image
+
+      - name: Compile and run Java benchmark with GraalVM Native Image
+        run: |
+          cd benchmarks/java
+          javac PrimeBenchmark.java
+          native-image --no-fallback PrimeBenchmark
+          cd ../../
+          ./benchmarks/java/primebenchmark > results/java_graalvm_result.json
+
+      # Optimized Python benchmark using PyPy
+      - name: Set up PyPy
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+          pypy: 'true'
+
+      - name: Run Python benchmark with PyPy
+        run: pypy3 benchmarks/python/prime_benchmark.py > results/python_pypy_result.json
+
+      # Optimized JavaScript benchmark using GraalVM JavaScript engine
+      - name: Run JavaScript benchmark with GraalVM
+        run: js benchmarks/js/prime_benchmark.js > results/js_graalvm_result.json
+
+      # Compile and run C++ benchmark with optimizations
+      - name: Compile and run C++ benchmark
+        run: |
+          g++ -O3 -march=native -flto -o benchmarks/cpp/PrimeBenchmark benchmarks/cpp/PrimeBenchmark.cpp
+          ./benchmarks/cpp/PrimeBenchmark > results/cpp_result.json
+
+      # Generate Markdown Report
       - name: Generate Markdown Report
         run: |
           javac MarkdownGenerator.java
           java MarkdownGenerator
 
+      # Commit results
       - name: Commit results
         run: |
           git config --global user.name "GitHub Actions Bot"
