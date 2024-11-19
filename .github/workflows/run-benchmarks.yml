@@ -1,4 +1,4 @@
-name: Run Prime Benchmarks on GraalVM
+name: Run Prime Benchmarks
 
 on:
   push:
@@ -11,51 +11,48 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-    - name: Set up GraalVM
-      uses: graalvm/setup-graalvm@v1
-      with:
-        version: '22.3.1' # Specify the GraalVM version
-        java-version: '17' # Use Java 17
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          version: '22.3.1' # Specify the GraalVM version
+          java-version: '17' # Use Java 17
 
-    - name: Set up Python (via GraalVM)
-      run: |
-        gu install python
-        graalpython --version
+      - name: Benchmark Java
+        run: |
+          cd java
+          mvn compile exec:java -Dexec.mainClass=PrimeBenchmark
 
-    - name: Set up Node.js (via GraalVM)
-      run: |
-        gu install nodejs
-        node --version
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Set up Native Image
-      run: gu install native-image
+      - name: Benchmark Python
+        run: |
+          python python/prime_benchmark.py
 
-    - name: Benchmark Java (GraalVM)
-      run: |
-        cd java
-        mvn compile exec:java -Dexec.mainClass=PrimeBenchmark
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-    - name: Benchmark Python (GraalVM)
-      run: |
-        graalpython python/prime_benchmark.py
+      - name: Benchmark JavaScript
+        run: |
+          cd javascript
+          npm install
+          npm start
 
-    - name: Benchmark JavaScript (GraalVM)
-      run: |
-        cd javascript
-        npm install
-        node prime_benchmark.js
+      - name: Install GCC
+        run: sudo apt-get install -y build-essential
 
-    - name: Install GCC
-      run: sudo apt-get install -y build-essential
+      - name: Benchmark C++
+        run: |
+          cd cpp
+          make
+          ./prime_benchmark
 
-    - name: Benchmark C++ (Native Compilation)
-      run: |
-        cd cpp
-        make
-        ./prime_benchmark
-
-    - name: Collect Results
-      run: echo "All benchmarks completed successfully on GraalVM!"
+      - name: Collect Results
+        run: echo "All benchmarks completed successfully!"
