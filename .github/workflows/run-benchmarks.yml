@@ -27,6 +27,10 @@ jobs:
           - cpp_gcc
           - cpp_clang
           - cpp_pgo
+          - scala_default
+          - c_gcc
+          - c_clang
+          - csharp_default
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -35,6 +39,8 @@ jobs:
         run: mkdir -p results
 
       # Set up environments based on language
+
+      # Java setup
       - name: Set up Java (default)
         if: ${{ matrix.language == 'java_default' || matrix.language == 'java_optimized' }}
         uses: actions/setup-java@v3
@@ -42,51 +48,75 @@ jobs:
           java-version: '21'
           distribution: 'adopt'
 
+      # GraalVM setup
       - name: Set up GraalVM
-        if: ${{ startsWith(matrix.language, 'java_graalvm_jvm') || startsWith(matrix.language, 'java_graalvm_native') || startsWith(matrix.language, 'java_graalvm_native_optimized') || matrix.language == 'javascript_graalvm' }}
+        if: ${{ startsWith(matrix.language, 'java_graalvm') || matrix.language == 'javascript_graalvm' }}
         uses: graalvm/setup-graalvm@v1
         with:
           java-version: '21'
           distribution: 'graalvm'
           components: 'native-image,nodejs'
 
+      # Scala setup
+      - name: Install Scala
+        if: ${{ matrix.language == 'scala_default' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y scala
+
+      # Node.js setup
       - name: Set up Node.js
         if: ${{ matrix.language == 'javascript_default' || matrix.language == 'javascript_v8_optimized' }}
         uses: actions/setup-node@v3
         with:
           node-version: '20'
 
+      # C and C++ setup
       - name: Install GCC
-        if: ${{ matrix.language == 'cpp_gcc' || matrix.language == 'cpp_pgo' }}
-        run: sudo apt-get update && sudo apt-get install -y g++
+        if: ${{ matrix.language == 'cpp_gcc' || matrix.language == 'cpp_pgo' || matrix.language == 'c_gcc' }}
+        run: sudo apt-get update && sudo apt-get install -y gcc g++
 
       - name: Install Clang
-        if: ${{ matrix.language == 'cpp_clang' }}
+        if: ${{ matrix.language == 'cpp_clang' || matrix.language == 'c_clang' }}
         run: sudo apt-get update && sudo apt-get install -y clang
 
+      # Python setup
       - name: Set up Python
         if: ${{ matrix.language == 'python_default' || matrix.language == 'python_cython' || matrix.language == 'python_nuitka' }}
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
+      # PyPy setup
       - name: Set up PyPy
         if: ${{ matrix.language == 'python_pypy' }}
         uses: actions/setup-python@v4
         with:
           python-version: 'pypy-3.9'
 
+      # Cython installation
       - name: Install Cython
         if: ${{ matrix.language == 'python_cython' }}
         run: pip install cython
 
+      # Nuitka installation
       - name: Install Nuitka
         if: ${{ matrix.language == 'python_nuitka' }}
         run: pip install nuitka
 
+      # .NET SDK setup for C#
+      - name: Set up .NET SDK
+        if: ${{ matrix.language == 'csharp_default' }}
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x' # Use the latest .NET 7 SDK
+
       # Benchmark Execution
       - name: Run Benchmark
         continue-on-error: true
+        env:
+          GRAALVM_HOME: ${{ steps.setup-graalvm.outputs.GRAALVM_HOME }}
+          PATH: ${{ steps.setup-graalvm.outputs.GRAALVM_HOME }}/bin:${{ env.PATH }}
         run: |
           # Java default benchmark
           if [ "${{ matrix.language }}" == "java_default" ]; then
@@ -190,6 +220,32 @@ jobs:
             # Compile using profile data
             g++ -O3 -march=native -fprofile-use -fprofile-correction -o benchmarks/cpp/PrimeBenchmark_PGO benchmarks/cpp/PrimeBenchmark.cpp
             ./benchmarks/cpp/PrimeBenchmark_PGO > results/cpp_pgo_result.json
+          fi
+
+          # Scala benchmark
+          if [ "${{ matrix.language }}" == "scala_default" ]; then
+            cd benchmarks/scala
+            scalac PrimeBenchmark.scala
+            scala PrimeBenchmark > ../../results/scala_result.json
+          fi
+
+          # C benchmark compiled with GCC
+          if [ "${{ matrix.language }}" == "c_gcc" ]; then
+            gcc -O3 -march=native -flto -o benchmarks/c/PrimeBenchmark benchmarks/c/PrimeBenchmark.c
+            ./benchmarks/c/PrimeBenchmark > results/c_gcc_result.json
+          fi
+
+          # C benchmark compiled with Clang
+          if [ "${{ matrix.language }}" == "c_clang" ]; then
+            clang -O3 -march=native -flto -o benchmarks/c/PrimeBenchmark benchmarks/c/PrimeBenchmark.c
+            ./benchmarks/c/PrimeBenchmark > results/c_clang_result.json
+          fi
+
+          # C# benchmark
+          if [ "${{ matrix.language }}" == "csharp_default" ]; then
+            cd benchmarks/csharp
+            dotnet build -c Release
+            dotnet run -c Release > ../../results/csharp_result.json
           fi
 
       - name: Upload Result Artifact
