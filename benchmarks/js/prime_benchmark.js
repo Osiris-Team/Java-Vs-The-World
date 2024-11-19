@@ -11,12 +11,15 @@ function countPrimes(n) {
     return isPrime.reduce((count, val) => count + (val ? 1 : 0), 0);
 }
 
+// Generate a random number between 100000000 and 100000100
+const randomMax = 100000000 + Math.floor(Math.random() * 101);
+
 // First run (not timed)
-countPrimes(100000000);
+countPrimes(randomMax);
 
 // Second run (timed)
 const start = process.hrtime.bigint();
-countPrimes(100000000);
+countPrimes(randomMax);
 const end = process.hrtime.bigint();
 
 console.log(`{"type": "prime", "time_ns": ${end - start}}`);

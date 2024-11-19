@@ -1,4 +1,5 @@
 import time
+import random
 
 def count_primes(n):
     is_prime = [True] * (n + 1)
@@ -9,12 +10,15 @@ def count_primes(n):
                 is_prime[j] = False
     return sum(is_prime)
 
+# Generate a random number between 100000000 and 100000100
+random_max = random.randint(100000000, 100000100)
+
 # First run (not timed)
-count_primes(100000000)
+count_primes(random_max)
 
 # Second run (timed)
 start_time = time.time()
-count_primes(100000000)
+count_primes(random_max)
 end_time = time.time()
 
 print(f'{{"type": "prime", "time_ns": {int((end_time - start_time) * 1e9)}}}')

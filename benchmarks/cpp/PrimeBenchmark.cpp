@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
-#include <algorithm> // Needed for std::count
+#include <random>
 
 int countPrimes(int n) {
     std::vector<bool> isPrime(n + 1, true);
@@ -17,15 +17,21 @@ int countPrimes(int n) {
 }
 
 int main() {
+    // Generate a random number between 100000000 and 100000100
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(100000000, 100000100);
+    int randomMax = dis(gen);
+
     // First run (not timed)
-    countPrimes(100000000);
+    countPrimes(randomMax);
 
     // Second run (timed)
     auto start = std::chrono::high_resolution_clock::now();
-    countPrimes(100000000);
+    countPrimes(randomMax);
     auto end = std::chrono::high_resolution_clock::now();
 
-    std::cout << "{\"type\": \"prime\", \"time_ns\": "
+    std::cout << "{\\"type\\": \\"prime\\", \\"time_ns\\": "
               << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count()
               << "}" << std::endl;
 
