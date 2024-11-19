@@ -22,8 +22,8 @@ public class MarkdownGenerator {
     }
 
     public static void main(String[] args) {
-        String resultsDir = "../../results"; // Directory containing result files
-        String outputFile = new File(Paths.get("../../results_summary.md")); // Output file in the current working directory
+        String resultsDir = "results"; // Directory containing result files
+        String outputFile = "results_summary.md"; // Output file in the current working directory
 
         try {
             // Read result files

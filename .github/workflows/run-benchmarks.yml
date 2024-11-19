@@ -65,7 +65,6 @@ jobs:
 
       - name: Generate Markdown Report
         run: |
-          cd benchmarks/java
           javac MarkdownGenerator.java
           java MarkdownGenerator
 
