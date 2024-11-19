@@ -1,9 +1,5 @@
-# Java-Vs-The-World
-A repo dedicated to showing why Java is better than all other languages.
-
-I think that 99% of algorithms are faster in Java in their second run than
-in any other Language due to the better JIT compiler and optimizations that are possible.
-I am talking about the GraalVM distribution of Java and its latest version, but we might as well use other distros.
+# Lang-Benchmarks
+Some interesting performance Benchmarks to compare multiple languages with the focus on Java.
 
 You can find the results [here](results_summary.md).
 
