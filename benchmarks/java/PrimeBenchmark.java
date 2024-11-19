@@ -12,7 +12,9 @@ public class PrimeBenchmark {
         countPrimes(1000000);
         endTime = System.nanoTime();
 
-        System.out.printf("{"language": "Java", "time_ns": %d}%n", (endTime - startTime));
+        System.out.printf("""
+                {"language": "Java", "time_ns": %d}
+                """, (endTime - startTime));
     }
 
     private static int countPrimes(int n) {
