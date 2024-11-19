@@ -212,10 +212,14 @@ jobs:
         with:
           path: all_results
 
+      - name: List Downloaded Artifacts
+        run: |
+          ls -R all_results
+
       - name: Merge Result Files
         run: |
           mkdir -p results
-          cp all_results/**/results/* results/
+          cp all_results/*/results/* results/
 
       - name: Generate Markdown Report
         run: |
