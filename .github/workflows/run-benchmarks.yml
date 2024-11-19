@@ -5,13 +5,15 @@ on:
     branches:
       - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   run-benchmarks:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up GraalVM
@@ -20,39 +22,32 @@ jobs:
           version: '22.3.1' # Specify the GraalVM version
           java-version: '17' # Use Java 17
 
-      - name: Benchmark Java
-        run: |
-          cd java
-          mvn compile exec:java -Dexec.mainClass=PrimeBenchmark
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-
-      - name: Benchmark Python
-        run: |
-          python python/prime_benchmark.py
+          python-version: '3.x'
 
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-
-      - name: Benchmark JavaScript
-        run: |
-          cd javascript
-          npm install
-          npm start
+          node-version: '16'
 
       - name: Install GCC
-        run: sudo apt-get install -y build-essential
+        run: sudo apt-get update && sudo apt-get install -y g++
 
-      - name: Benchmark C++
+      - name: Compile and run Java benchmark
         run: |
-          cd cpp
-          make
-          ./prime_benchmark
+          cd benchmarks/java
+          javac PrimeBenchmark.java
+          java PrimeBenchmark
 
-      - name: Collect Results
-        run: echo "All benchmarks completed successfully!"
+      - name: Run Python benchmark
+        run: python3 benchmarks/python/prime_benchmark.py
+
+      - name: Compile and run C++ benchmark
+        run: |
+          g++ -o benchmarks/cpp/PrimeBenchmark benchmarks/cpp/PrimeBenchmark.cpp
+          ./benchmarks/cpp/PrimeBenchmark
+
+      - name: Run JavaScript benchmark
+        run: node benchmarks/js/prime_benchmark.js
