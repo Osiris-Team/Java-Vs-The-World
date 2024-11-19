@@ -22,7 +22,7 @@ public class MarkdownGenerator {
     }
 
     public static void main(String[] args) {
-        String resultsDir = System.getProperty("user.dir") + "/results"; // Directory containing result files
+        String resultsDir = System.getProperty("user.dir").getParentFile() + "/results"; // Directory containing result files
         String outputFile = "results_summary.md"; // Output file in the current working directory
 
         try {
