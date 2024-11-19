@@ -65,14 +65,38 @@ jobs:
 
       - name: Aggregate results
         run: |
-          echo "# Benchmark Results" > results_summary.md
+          echo "# Prime Counting Benchmark Results" > results_summary.md
           echo "" >> results_summary.md
-          echo "| Language   | Time (ns)         |" >> results_summary.md
-          echo "|------------|-------------------|" >> results_summary.md
+          echo "This file contains the results of running a prime-counting algorithm across various programming languages." >> results_summary.md
+          echo "" >> results_summary.md
+          echo "**Benchmark Details:**" >> results_summary.md
+          echo "- Problem size: Count primes up to 1,000,000." >> results_summary.md
+          echo "- Environment: GitHub-hosted Ubuntu runners." >> results_summary.md
+          echo "- Timings: Only the second run of the algorithm is measured for warm-up optimization." >> results_summary.md
+          echo "" >> results_summary.md
+          echo "| Language   | Time (ns)         | Time (ms)         | Time (s)          | % Slower than Fastest |" >> results_summary.md
+          echo "|------------|-------------------|-------------------|-------------------|-----------------------|" >> results_summary.md
+          results=()
           for file in results/*.json; do
-            lang=$(basename $file _result.json)
-            time=$(grep -oP '"time_ns": \d+' $file | awk '{print $2}')
-            echo "| ${lang^}      | ${time} ns       |" >> results_summary.md
+          lang=$(basename $file _result.json)
+          time=$(grep -oP '"time_ns": \d+' $file | awk '{print $2}')
+          results+=("$lang:$time")
+          done
+          sorted_results=$(echo "${results[@]}" | tr ' ' '\n' | sort -t: -nk2)
+          fastest_time=0
+          for result in $sorted_results; do
+          lang=$(echo $result | cut -d: -f1)
+          time=$(echo $result | cut -d: -f2)
+          time_ms=$(awk "BEGIN {print $time / 1e6}")
+          time_s=$(awk "BEGIN {print $time / 1e9}")
+          if [ $fastest_time -eq 0 ]; then
+           fastest_time=$time
+           percent_slower="0%"
+          else
+           percent_slower=$(awk "BEGIN {print (($time - $fastest_time) / $fastest_time) * 100}")
+           percent_slower=$(printf "%.2f%%" $percent_slower)
+          fi
+          echo "| ${lang^}      | ${time} ns       | ${time_ms} ms      | ${time_s} s      | ${percent_slower}        |" >> results_summary.md
           done
 
       - name: Commit results
