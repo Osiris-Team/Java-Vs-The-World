@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <algorithm> // Needed for std::count
 
 int countPrimes(int n) {
     std::vector<bool> isPrime(n + 1, true);
@@ -24,7 +25,7 @@ int main() {
     countPrimes(1000000);
     auto end = std::chrono::high_resolution_clock::now();
 
-    std::cout << "{"language": "C++", "time_ns": "
+    std::cout << "{\"language\": \"C++\", \"time_ns\": "
               << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count()
               << "}" << std::endl;
 
