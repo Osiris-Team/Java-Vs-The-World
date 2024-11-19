@@ -48,10 +48,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'graalvm'
-
-      - name: Install Native Image
-        if: ${{ matrix.language == 'java_graalvm_native' || matrix.language == 'java_graalvm_native_optimized' }}
-        run: gu install native-image
+          components: 'native-image,nodejs'
 
       - name: Set up Node.js
         if: ${{ matrix.language == 'javascript_default' || matrix.language == 'javascript_v8_optimized' }}
@@ -86,10 +83,6 @@ jobs:
       - name: Install Nuitka
         if: ${{ matrix.language == 'python_nuitka' }}
         run: pip install nuitka
-
-      - name: Install GraalVM Node.js
-        if: ${{ matrix.language == 'javascript_graalvm' }}
-        run: gu install nodejs
 
       # Benchmark Execution
       - name: Run Benchmark
