@@ -9,15 +9,19 @@ This file contains the results of running a prime-counting algorithm across vari
 
 | Implementation       | Time (ns)         | Time (ms)         | Time (s)          | % Slower than Fastest |
 |----------------------|-------------------|-------------------|-------------------|-----------------------|
-| cpp                  | 27649895          | 27.65             | 0.0276            | 0.00                  |
-| java                 | 33976664          | 33.98             | 0.0340            | 22.88                 |
-| java_graalvm         | 38718634          | 38.72             | 0.0387            | 40.03                 |
-| java_graalvm_native_image | 47308140          | 47.31             | 0.0473            | 71.10                 |
-| js                   | 115366631         | 115.37            | 0.1154            | 317.24                |
-| python_pypy          | 196762084         | 196.76            | 0.1968            | 611.62                |
-| python               | 674439191         | 674.44            | 0.6744            | 2339.21               |
-| js_graalvm           | 1372159915        | 1372.16           | 1.3722            | 4862.62               |
+| cpp_clang            | 24678347          | 24.68             | 0.0247            | 0.00                  |
+| cpp                  | 27110031          | 27.11             | 0.0271            | 9.85                  |
+| java_graalvm_native_optimized | 28700239          | 28.70             | 0.0287            | 16.30                 |
+| java_graalvm_jvm     | 31518651          | 31.52             | 0.0315            | 27.72                 |
+| java_optimized       | 34268541          | 34.27             | 0.0343            | 38.86                 |
+| java                 | 34918282          | 34.92             | 0.0349            | 41.49                 |
+| cpp_pgo              | 37655790          | 37.66             | 0.0377            | 52.59                 |
+| java_graalvm_native  | 45301316          | 45.30             | 0.0453            | 83.57                 |
+| js                   | 174911086         | 174.91            | 0.1749            | 608.76                |
+| python_pypy          | 235081434         | 235.08            | 0.2351            | 852.58                |
+| python_nuitka        | 728096008         | 728.10            | 0.7281            | 2850.34               |
+| python               | 752319574         | 752.32            | 0.7523            | 2948.50               |
 
 **Summary:**
-- Fastest implementation: cpp with 27.65 ms (0.0276 s).
-- Slowest implementation: js_graalvm with 1372.16 ms (1.3722 s).
+- Fastest implementation: cpp_clang with 24.68 ms (0.0247 s).
+- Slowest implementation: python with 752.32 ms (0.7523 s).
