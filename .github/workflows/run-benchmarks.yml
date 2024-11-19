@@ -43,7 +43,7 @@ jobs:
           distribution: 'adopt'
 
       - name: Set up GraalVM
-        if: ${{ startsWith(matrix.language, 'java_graalvm') || matrix.language == 'javascript_graalvm' }}
+        if: ${{ startsWith(matrix.language, 'java_graalvm_jvm') || startsWith(matrix.language, 'java_graalvm_native') || startsWith(matrix.language, 'java_graalvm_native_optimized') || matrix.language == 'javascript_graalvm' }}
         uses: graalvm/setup-graalvm@v1
         with:
           java-version: '21'
