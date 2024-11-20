@@ -196,7 +196,7 @@ jobs:
 
           # JavaScript benchmark with GraalVM
           if [ "${{ matrix.language }}" == "javascript_graalvm" ]; then
-            js benchmarks/js/prime_benchmark.js > results/js_graalvm_result.json
+            node benchmarks/js/prime_benchmark.js > results/js_graalvm_result.json
           fi
 
           # C++ benchmark compiled with GCC
